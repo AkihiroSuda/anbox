@@ -15,6 +15,7 @@
  *
  */
 
+#include <fstream>
 #include <string>
 
 #include "anbox/graphics/opengles_message_processor.h"
@@ -30,6 +31,7 @@
 #include "anbox/qemu/null_message_processor.h"
 #include "anbox/qemu/pipe_connection_creator.h"
 #include "anbox/qemu/sensors_message_processor.h"
+#include "anbox/qemu/tee_message_processor.h"
 
 namespace ba = boost::asio;
 
@@ -140,9 +142,11 @@ std::shared_ptr<network::MessageProcessor>
 PipeConnectionCreator::create_processor(
     const client_type &type,
     const std::shared_ptr<network::SocketMessenger> &messenger) {
-  if (type == client_type::opengles)
-    return std::make_shared<graphics::OpenGlesMessageProcessor>(renderer_, messenger);
-  else if (type == client_type::qemud_boot_properties)
+  if (type == client_type::opengles) {
+    auto ogmp = std::make_shared<graphics::OpenGlesMessageProcessor>(renderer_, messenger);
+    auto ogcap = std::make_shared<std::ofstream>("/tmp/anbox-opengles.capture", std::ios::binary);
+    return std::make_shared<qemu::TeeMessageProcessor>(ogmp, ogcap);
+  } else if (type == client_type::qemud_boot_properties)
     return std::make_shared<qemu::BootPropertiesMessageProcessor>(messenger);
   else if (type == client_type::qemud_hw_control)
     return std::make_shared<qemu::HwControlMessageProcessor>(messenger);

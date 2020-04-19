@@ -296,6 +296,8 @@ set(SOURCES
     anbox/qemu/qemud_message_processor.h
     anbox/qemu/sensors_message_processor.cpp
     anbox/qemu/sensors_message_processor.h
+    anbox/qemu/tee_message_processor.cpp
+    anbox/qemu/tee_message_processor.h
 
     anbox/rpc/channel.cpp
     anbox/rpc/channel.h
